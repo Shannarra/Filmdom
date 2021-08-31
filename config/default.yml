@@ -1,0 +1,7 @@
+app:
+  PORT: 6188
+  db:
+    user: '1086188'
+    server: IT-SQL01-SKN
+    password: 1q5KDltyYp
+    database: '1086188'

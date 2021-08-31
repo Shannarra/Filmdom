@@ -1,0 +1,27 @@
+{
+  "name": "filmdom",
+  "version": "1.0.0",
+  "description": "A movie backend api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shannarra/Filmdom.git"
+  },
+  "author": "Shannarra",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Shannarra/Filmdom/issues"
+  },
+  "homepage": "https://github.com/Shannarra/Filmdom#readme",
+  "dependencies": {
+    "config": "^3.3.6",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "joi": "^17.4.2",
+    "js-yaml": "^4.1.0",
+    "mssql": "^7.2.1"
+  }
+}
