@@ -1,3 +1,6 @@
+/**
+ * Stores queries for each SQL command.
+ */
 class QueryStorage {
     static get AllMovies() {
         return "select * from Movie";
@@ -8,7 +11,7 @@ class QueryStorage {
     }
 
     static MoviesFrom(ids) {
-        return `select * from Movie where Id in ${ids}`;
+        return `select * from Movie where Id in (${ids})`;
     }
 
     static UserFavouriteIds(userid) {
