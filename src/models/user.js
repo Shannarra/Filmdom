@@ -18,12 +18,15 @@ class User extends ApplicationRecord {
 
                     new mssql
                         .Request()
-                        .query(QueryStorage.AllUsers, (e, resp) => {
+                        .query(QueryStorage.GetQueries.AllUsers(), (e, resp) => {
                             if (e) {
                                 reject(e);
                             }
 
-                            resolve(resp.recordset);
+                            if (resp.recordset !== undefined && resp.recordset.length != 0)
+                                resolve(resp.recordset);
+                            else
+                                reject("404");
                         });
                 })
             }

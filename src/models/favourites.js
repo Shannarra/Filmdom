@@ -25,15 +25,20 @@ class Favourites extends ApplicationRecord {
     
                     new mssql
                         .Request()
-                        .query(QueryStorage.UserFavouriteIds(parseInt(userid)), (e, resp) => {
+                        .query(QueryStorage.GetQueries.UserFavouriteIds(parseInt(userid)), (e, resp) => {
                             if (e) {
                                 reject(e);
                             }
 
-                            let ar = [];
-                            resp.recordset.forEach(x => ar.push(x.MovieId))
-    
-                            resolve(ar);
+                            if (resp.recordset !== undefined && resp.recordset.length != 0) 
+                            {
+                                let ar = [];
+                                resp.recordset.forEach(x => ar.push(x.MovieId))
+        
+                                resolve(ar);
+                            } else {
+                                reject("404");
+                            }
                         });
                 })
             }
@@ -57,12 +62,14 @@ class Favourites extends ApplicationRecord {
                         const ids = await this.UserFavouriteIds(userid);
 
                         new mssql.Request()
-                            .query(QueryStorage.MoviesFrom(ids), (e, resp) => {
+                            .query(QueryStorage.GetQueries.MoviesFrom(ids), (e, resp) => {
                                 if (e) 
                                     reject(e);
-                                console.log(QueryStorage.MoviesFrom(ids));
 
-                                resolve(resp.recordset);
+                                if (resp.recordset !== undefined)
+                                    resolve(resp.recordset);
+                                else 
+                                    reject("404");
                             })
                     }
                     catch (e) {
