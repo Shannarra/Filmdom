@@ -13,36 +13,14 @@ class Favourites extends ApplicationRecord {
      * @returns [int]
      */
     static UserFavouriteIds(userid) {
-        return new Promise(
-            (resolve, reject) => {
-                if (!parseInt(userid)) {
-                    reject("Invalid user id");
-                } 
-                mssql.connect(ApplicationRecord.BaseConfig, e => {
-                    if (e){
-                        reject(e);
-                    }
-    
-                    new mssql
-                        .Request()
-                        .query(QueryStorage.GetQueries.UserFavouriteIds(parseInt(userid)), (e, resp) => {
-                            if (e) {
-                                reject(e);
-                            }
-
-                            if (resp.recordset !== undefined && resp.recordset.length != 0) 
-                            {
-                                let ar = [];
-                                resp.recordset.forEach(x => ar.push(x.MovieId))
-        
-                                resolve(ar);
-                            } else {
-                                reject("404");
-                            }
-                        });
-                })
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.GetQueries.UserFavouriteIds,
+            (items) => {
+                let arr = [];
+                items.forEach(x => arr.push(x.MovieId));
+                return arr;
             }
-        );
+        )  
     }
 
     /**
@@ -50,33 +28,11 @@ class Favourites extends ApplicationRecord {
      * @param {Number} userid - the ID
      * @returns SQL query result
      */
-    static UserFavouriteMovies(userid) {
-        return new Promise(
-            (resolve, reject) => {
-                mssql.connect(ApplicationRecord.BaseConfig, async(e) => {
-                    if (e){
-                        reject(e);
-                        return;
-                    }
-                    try {
-                        const ids = await this.UserFavouriteIds(userid);
+    static async UserFavouriteMovies(userid) {
+        const ids = await this.UserFavouriteIds(userid);
 
-                        new mssql.Request()
-                            .query(QueryStorage.GetQueries.MoviesFrom(ids), (e, resp) => {
-                                if (e) 
-                                    reject(e);
-
-                                if (resp.recordset !== undefined)
-                                    resolve(resp.recordset);
-                                else 
-                                    reject("404");
-                            })
-                    }
-                    catch (e) {
-                        reject(e);
-                    }
-                })
-            }
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.GetQueries.MoviesFrom(ids)    
         );
     }
 }

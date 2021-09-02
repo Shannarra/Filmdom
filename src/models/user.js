@@ -9,28 +9,9 @@ class User extends ApplicationRecord {
     }
 
     static get All() {
-        return new Promise(
-            (resolve, reject) =>{
-                mssql.connect(ApplicationRecord.BaseConfig, e => {
-                    if (e){
-                        reject(e);
-                    }
-
-                    new mssql
-                        .Request()
-                        .query(QueryStorage.GetQueries.AllUsers(), (e, resp) => {
-                            if (e) {
-                                reject(e);
-                            }
-
-                            if (resp.recordset !== undefined && resp.recordset.length != 0)
-                                resolve(resp.recordset);
-                            else
-                                reject("404");
-                        });
-                })
-            }
-        )        
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.GetQueries.AllUsers    
+        );  
     }
 }
 

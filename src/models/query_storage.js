@@ -6,7 +6,7 @@ class QueryStorage {
         return {
             AllMovies: () => "select * from Movie",
             AllUsers: () =>  "select * from MovieUser",
-            MoviesFrom: (ids) => { if(ids) `select * from Movie where Id in (${ids})`},
+            MoviesFrom: (ids) => `select * from Movie where Id in (${ids})`,
             UserFavouriteIds: (userid) => `select MovieId from 
                                             MovieUser join Favourites
                                             on MovieUser.Id = Favourites.UserId

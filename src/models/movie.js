@@ -9,85 +9,37 @@ class Movie extends ApplicationRecord {
     }
 
     static get All() {
-        return new Promise(
-            (resolve, reject) =>{
-                mssql.connect(ApplicationRecord.BaseConfig, e => {
-                    if (e){
-                        reject(e);
-                    }
-
-                    new mssql
-                        .Request()
-                        .query(QueryStorage.GetQueries.AllMovies(), (e, resp) => {
-                            if (e) {
-                                reject(e);
-                            }
-
-                            if (resp.recordset !== undefined && resp.recordset.length != 0)
-                                resolve(resp.recordset);
-                            else 
-                                reject("404");
-                        });
-                })
-            }
-        );       
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.GetQueries.AllMovies()    
+        );  
     }
 
     static Find(id) {
 
-        //SanitizeId(id);
+        //this.SanitizeId(id);
 
-        return new Promise(
-            (resolve, reject) =>{
-                mssql.connect(ApplicationRecord.BaseConfig, e => {
-                    if (e){
-                        reject(e);
-                    }
-
-                    new mssql
-                        .Request()
-                        .query(QueryStorage.GetQueries.FindMovie(id), (e, resp) => {
-                            if (e) {
-                                reject(e);
-                            }
-
-                            if (resp.recordset !== undefined && resp.recordset.length != 0)
-                                resolve(resp.recordset[0]);
-                            else 
-                                reject("404");
-                        });
-                })
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.GetQueries.FindMovie(id),
+            (items) => {
+                return items[0];
             }
-        ); 
+        );  
     }
 
-    static Update(id, {Title, Director, Description, ImageLink}) { // this would've been easier with TS interfaces
-        return new Promise(
-            (resolve, reject) => {
-                mssql.connect(ApplicationRecord.BaseConfig, async(e) => {
-                    if (e)
-                        reject(e);
-
-                    new mssql.Request()
-                            .query(QueryStorage.UpdateQueries.UpdateMovie(
-                                {
-                                    Title,
-                                    Director,
-                                    Description,
-                                    ImageLink
-                                },
-                                id
-                            ), (e, resp) => {
-                                if (e) 
-                                    reject(e);
-                                
-                                if (resp.recordset !== undefined && resp.recordset.length != 0)
-                                    resolve(resp.recordset);
-                                else 
-                                    reject("404");
-                            })
-                })
-            }
+    static Update(id, {Title, Director, Description, ImageLink, Year, Duration, Genre}) { // this would've been easier with TS interfaces
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.UpdateQueries.UpdateMovie(
+                {
+                    Title,
+                    Director,
+                    Description,
+                    ImageLink,
+                    Year,
+                    Duration, 
+                    Genre
+                },
+                id
+            )    
         );
     }
 }
