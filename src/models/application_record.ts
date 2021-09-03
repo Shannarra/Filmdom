@@ -1,13 +1,15 @@
 const DB_CONFIG = require('config').get('app.db');
-const QueryStorage = require('./query_storage');
-const mssql = require('mssql');
+import mssql, {IResult, IRecordSet} from 'mssql';
 
 /**
  * Base for ALL application record models, 
  * inspired by Rails' 
  * ActiveRecord::Base::ApplicationRecord (https://www.bigbinary.com/blog/application-record-in-rails-5)
  */
-class ApplicationRecord {
+export default class ApplicationRecord {
+
+    constructor() {}
+
     /**
      * Gives base configuration for the SQL connections
      */
@@ -22,19 +24,21 @@ class ApplicationRecord {
      * Makes and returns a promise for the given `transaction`, 
      * result could be altered by the given `successfulTransactionDelegate` param.
      * @param {QueryStorage} transaction -  a query that needs to be passed. REQUIRED!
-     * @param {Function<mssql.IResult<any>>} successfulTransactionDelegate - a middleware delegate (handler) before resolving the query.
+     * @param {Function<IRecordSet<any>>} successfulTransactionDelegate - a middleware delegate (handler) before resolving the query.
      * @returns 
      */
-    PromiseHandledSQLTransaction(transaction, successfulTransactionDelegate) {
+    static PromiseHandledSQLTransaction(transaction: string,
+            successfulTransactionDelegate?: ((items: IRecordSet<any>) => any[])
+            ) {
         return new Promise(
             async(resolve, reject) => {
-                mssql.connect(ApplicationRecord.BaseConfig, e => {
+                mssql.connect(ApplicationRecord.BaseConfig, (e: Error) => {
                     if (e) 
                         reject(e);
                     
                     new mssql
                         .Request()
-                        .query(transaction, (e, resp) => {
+                        .query(transaction, (e: Error, resp: IResult<any>) => {
                             if (e)
                                 reject(e);
 
@@ -52,5 +56,3 @@ class ApplicationRecord {
         );
     }
 }
-
-module.exports = ApplicationRecord;

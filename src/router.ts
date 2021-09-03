@@ -1,18 +1,20 @@
 const router = require('express').Router();
-const Favourites = require('./models/favourites');
-const Movie = require('./models/movie');
-const User = require('./models/user');
+import {Response, Request} from 'express';
+import Favourites from './models/favourites';
+import Movie from './models/movie';
+import User from './models/user';
 
-const HANDLE_ERR = (res, e) => {
-    if (!e.message === "404")
+const HANDLE_ERR = (res: Response, e: Error) => {
+    if (e.message !== "404")
         res.status(500).send(JSON.stringify({ message: e }));
     else 
         res.status(404).send(JSON.stringify({ message: "Items not found"}));
 }
+
 //#region gets
 
 //http://127.0.0.1:6188/api/movies
-router.get('/movies', async (req, res) => {
+router.get('/movies', async (req: Request, res: Response) => {
     try {
         res.send(await Movie.All);
     } catch (e) {
@@ -20,16 +22,16 @@ router.get('/movies', async (req, res) => {
     }
 });
 
-router.get('/movie/:id', async (req, res) => {
+router.get('/movie/:id', async (req: Request, res: Response) => {
     try {
-        res.send(await Movie.Find(req.params.id));
+        res.send(await Movie.Find(Number(req.params.id)));
     } catch (e) {
         HANDLE_ERR(res, e);
     }
 });
 
 //http://127.0.0.1:6188/api/users
-router.get('/users', async (req, res) => {
+router.get('/users', async (req: Request, res: Response) => {
     try {
         res.send(await User.All);
     } catch (e) {
@@ -38,9 +40,9 @@ router.get('/users', async (req, res) => {
 });
 
 // http://127.0.0.1:6188/api/user/2/favourites
-router.get('/user/:id/favourites', async (req, res) => {
+router.get('/user/:id/favourites', async (req: Request, res: Response) => {
     try {
-        res.send(await Favourites.UserFavouriteMovies(req.params.id));
+        res.send(await Favourites.UserFavouriteMovies(Number(req.params.id)));
     } catch (e) {
         HANDLE_ERR(res, e);
     }
@@ -50,7 +52,7 @@ router.get('/user/:id/favourites', async (req, res) => {
 
 
 //#region updates
-router.put('/movie/:id', async (req, res) => {
+router.put('/movie/:id', async (req: Request, res: Response) => {
     try {
         console.log(req.body);
         res.send(req.body);
@@ -67,4 +69,4 @@ router.put('/movie/:id', async (req, res) => {
 
 //#endregion
 
-module.exports = router;
+export default router;
