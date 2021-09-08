@@ -1,6 +1,7 @@
 const router = require('express').Router();
 import {Response, Request} from 'express';
 import JWTVerifiedRequest, {matchToken, signToken, tokenVerifier} from './middleware/jwt';
+import ApplicationRecord from './models/application_record';
 import Favourites from './models/favourites';
 import Movie from './models/movie';
 import User from './models/user';
@@ -81,14 +82,28 @@ router.put('/movie/:id', async (req: Request, res: Response) => {
 
 
 //#region posts
-router.post('/login', (req: any, res: Response) => {
+router.post('/login', async(req: any, res: Response) => {
     //TODO: find user by info
+
+
     if (!req.body) 
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
+    
     const usr = req.body;
-    console.log(usr);
+    const {error} = ApplicationRecord.validateUser(usr);
+    if (!error) 
+    {
+        const dbUser = new User(await User.authenticate(usr));
 
-    signToken(req, res, usr);
+        if (dbUser.matchesPropertiesCorrectly(usr))
+            signToken(req, res, usr);
+        else 
+            console.log("shit");
+
+    }
+    else
+     HANDLE_ERR(res, error);
+
 
 })
 //#endregion

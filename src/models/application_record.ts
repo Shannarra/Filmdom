@@ -1,5 +1,6 @@
 const DB_CONFIG = require('config').get('app.db');
 import mssql, {IResult, IRecordSet, Request} from 'mssql';
+import Joi from 'joi';
 
 /**
  * Base for ALL application record models, 
@@ -53,5 +54,27 @@ export default class ApplicationRecord {
                 })
             }
         );
+    }
+
+    static validateUser(wannabe: any) {
+        const matcher = Joi.object({
+            Name: Joi
+                    .string()
+                    .min(2)
+                    .max(50)
+                    .required(),
+            Email: Joi
+                    .string()
+                    .email()
+                    .not("")
+                    .required(),
+            Password: Joi
+                    .string()
+                    .required(),
+            IsAdmin: Joi
+                    .bool()
+        });
+        
+        return matcher.validate(wannabe);
     }
 }

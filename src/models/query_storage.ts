@@ -14,7 +14,8 @@ export default class QueryStorage {
                                             MovieUser join Favourites
                                             on MovieUser.Id = Favourites.UserId
                                             where UserId = ${userid}`,
-            FindMovie: (id: number) => `select * from Movie where Id=${id}`
+            FindMovie: (id: number) => `select * from Movie where Id=${id}`,
+            FindUser: (name: string) => `select * from MovieUser where Name='${name}'`, // the name IS unique
         }
     }
 
