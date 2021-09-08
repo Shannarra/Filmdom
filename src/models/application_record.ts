@@ -1,5 +1,5 @@
 const DB_CONFIG = require('config').get('app.db');
-import mssql, {IResult, IRecordSet} from 'mssql';
+import mssql, {IResult, IRecordSet, Request} from 'mssql';
 
 /**
  * Base for ALL application record models, 
@@ -36,8 +36,7 @@ export default class ApplicationRecord {
                     if (e) 
                         reject(e);
                     
-                    new mssql
-                        .Request()
+                    new Request()
                         .query(transaction, (e: Error, resp: IResult<any>) => {
                             if (e)
                                 reject(e);

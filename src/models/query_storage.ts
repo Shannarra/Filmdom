@@ -33,5 +33,3 @@ export default class QueryStorage {
         }
     }
 }
-
-module.exports = QueryStorage;

@@ -13,5 +13,3 @@ export default class User extends ApplicationRecord {
         );  
     }
 }
-
-module.exports = User;
