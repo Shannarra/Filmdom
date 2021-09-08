@@ -15,10 +15,8 @@ const HANDLE_ERR = (res: Response, e: Error) => {
 
 //#region gets
 
-
-
 //http://127.0.0.1:6188/api/movies
-router.get('/movies', tokenVerifier, (req: JWTVerifiedRequest, res: Response) => {
+router.get('/movies', (req: JWTVerifiedRequest, res: Response) => {
     if (req.token) {
         matchToken(req, res, async(e, data) => {
             if (e)
@@ -47,7 +45,7 @@ router.get('/movie/:id', async (req: Request, res: Response) => {
 });
 
 //http://127.0.0.1:6188/api/users
-router.get('/users', async (req: Request, res: Response) => {
+router.get('/users', tokenVerifier, async(req: Request, res: Response) => {
     try {
         res.send(await User.All);
     } catch (e) {
@@ -56,7 +54,7 @@ router.get('/users', async (req: Request, res: Response) => {
 });
 
 // http://127.0.0.1:6188/api/user/2/favourites
-router.get('/user/:id/favourites', async (req: Request, res: Response) => {
+router.get('/user/:id/favourites', tokenVerifier, async (req: Request, res: Response) => {
     try {
         res.send(await Favourites.UserFavouriteMovies(Number(req.params.id)));
     } catch (e) {
@@ -91,15 +89,13 @@ router.post('/login', async(req: any, res: Response) => {
     
     const usr = req.body;
     const {error} = ApplicationRecord.validateUser(usr);
-    if (!error) 
-    {
+    if (!error) {
         const dbUser = new User(await User.authenticate(usr));
 
         if (dbUser.matchesPropertiesCorrectly(usr))
             signToken(req, res, usr);
         else 
-            console.log("shit");
-
+            HANDLE_ERR(res, new Error("Invalid user object"));
     }
     else
      HANDLE_ERR(res, error);
