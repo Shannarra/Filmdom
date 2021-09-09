@@ -59,7 +59,7 @@ export default class ApplicationRecord {
         );
     }
 
-    static validateUser(wannabe: any) {
+    static ValidateUser(wannabe: any) {
         const matcher = Joi.object({
             Name: Joi
                     .string()

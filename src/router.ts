@@ -50,6 +50,7 @@ router.get('/users', tokenVerifier, async(req: Request, res: Response) => {
 // http://127.0.0.1:6188/api/user/2/favourites
 router.get('/user/:id/favourites', tokenVerifier, async (req: Request, res: Response) => {
     try {
+        let id = 
         res.send(await Favourites.UserFavouriteMovies(Number(req.params.id)));
     } catch (e) {
         HANDLE_ERR(res, e);
@@ -79,11 +80,11 @@ router.post('/login', async(req: any, res: Response) => {
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
         
     const usr = req.body;
-    const {error} = ApplicationRecord.validateUser(usr);
+    const {error} = ApplicationRecord.ValidateUser(usr);
     if (!error) {
-        const dbUser = new User(await User.authenticate(usr));
+        const dbUser = new User(await User.Authenticate(usr));
         
-        if (dbUser.matchesPropertiesCorrectly(usr))
+        if (await dbUser.MatchesPropertiesCorrectly(usr))
             signToken(req, res, usr);
         else 
             HANDLE_ERR(res, new Error("Invalid user object"));
@@ -99,14 +100,14 @@ router.post('/signup', async (req: Request, res: Response) => {
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
     const givenUser = req.body;
-    const {error} = ApplicationRecord.validateUser(givenUser);
+    const {error} = ApplicationRecord.ValidateUser(givenUser);
     if (!error) {
-        const prep = await User.prepare(givenUser); 
+        const prep = await User.Prepare(givenUser); 
        
         let exists;
         
         try {
-            exists = await User.exists(prep);
+            exists = await User.Exists(prep);
         }
         catch (e) { /**user with that name doesn't exist */ }
         
@@ -115,7 +116,7 @@ router.post('/signup', async (req: Request, res: Response) => {
         else {
             //user doesn't exist
             try {
-                await User.create(prep);
+                await User.Create(prep);
             } catch(e) {
                 if (e !== "404")
                     HANDLE_ERR(res, e);

@@ -5,8 +5,8 @@ import bcrypt from 'bcryptjs';
 const SALTS = require('config').get('app.BcryptSalts')
 
 export default class User extends ApplicationRecord {
-    
-    
+
+
     public Name: string;
     public Email: string;
     public Password: string;
@@ -15,10 +15,10 @@ export default class User extends ApplicationRecord {
 
     constructor(obj) {
         super();
-        const {error} = ApplicationRecord.validateUser({
+        const { error } = ApplicationRecord.ValidateUser({
             Name: obj.Name,
-            Email: obj.Email, 
-            Password: obj.Password, 
+            Email: obj.Email,
+            Password: obj.Password,
             IsAdmin: obj.IsAdmin
         });
 
@@ -32,28 +32,36 @@ export default class User extends ApplicationRecord {
         }
     }
 
-    matchesPropertiesCorrectly(usr: User): boolean {
-        return(
+    async MatchesPropertiesCorrectly(usr: User): Promise<boolean> {
+        //the "this" is the DB user
+
+        const passwordsMatch = await User.ComparePasswords(usr.Password, this.Password);
+
+        return (
             this.Name === usr.Name &&
-            this.Password === usr.Password && // TEMPORARY!
+            passwordsMatch &&
             this.Email === usr.Email &&
             this.IsAdmin === Boolean(usr.IsAdmin || 0)
         );
     }
-    
-    static async prepare(givenUser: any) :Promise<User> {
+
+    static async ComparePasswords(user_pass, from_db) {
+        return await bcrypt.compare(user_pass, from_db);
+    }
+
+    static async Prepare(givenUser: any): Promise<User> {
         let hashed = await User.Hash(givenUser);
-       
+
         return new User({
             Name: givenUser.Name,
             Email: givenUser.Email,
             Password: hashed,
-            IsAdmin: givenUser.IsAdmin 
+            IsAdmin: givenUser.IsAdmin
         })
     }
 
-    static authenticate(wannabe) {
-        const {error} = ApplicationRecord.validateUser(wannabe);
+    static Authenticate(wannabe) {
+        const { error } = ApplicationRecord.ValidateUser(wannabe);
 
         return ApplicationRecord.PromiseHandledSQLTransaction(
             QueryStorage.GetQueries.FindUser(wannabe.Name, wannabe.Email),
@@ -62,12 +70,12 @@ export default class User extends ApplicationRecord {
                     throw error;
                 if (users.length > 1)
                     throw Error("Too many users");
-                
+
                 return users[0];
             }
         );
     }
-    static exists(prep: User) {
+    static Exists(prep: User) {
         return ApplicationRecord.PromiseHandledSQLTransaction(
             QueryStorage.GetQueries.FindUser(prep.Name, prep.Email),
             (items) => {
@@ -76,19 +84,25 @@ export default class User extends ApplicationRecord {
         )
     }
 
-    static create(u: User) {
+    static Create(u: User) {
         return ApplicationRecord.PromiseHandledSQLTransaction(
             QueryStorage.PostQueries.MakeUser(u)
         )
     }
 
-    static get All() {
+    static Find(name: string, email: string) {
         return ApplicationRecord.PromiseHandledSQLTransaction(
-            QueryStorage.GetQueries.AllUsers()    
-        );  
+            QueryStorage.GetQueries.FindUser(name, email)
+        );
     }
 
-    private static Hash(givenUser) :Promise<string> {
+    static get All() {
+        return ApplicationRecord.PromiseHandledSQLTransaction(
+            QueryStorage.GetQueries.AllUsers()
+        );
+    }
+
+    private static Hash(givenUser): Promise<string> {
         return new Promise(
             (resolve, reject) => {
                 bcrypt.genSalt(SALTS, (e, salt) => {
@@ -96,10 +110,10 @@ export default class User extends ApplicationRecord {
                         bcrypt.hash(givenUser.Password, salt, (e, hash) => {
                             if (!e)
                                 resolve(hash);
-                            else 
+                            else
                                 reject(e);
                         })
-                    else 
+                    else
                         reject(e);
                 })
             }
