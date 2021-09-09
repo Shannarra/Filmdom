@@ -42,6 +42,9 @@ export default class ApplicationRecord {
                             if (e)
                                 reject(e);
 
+                            if (!resp)
+                                reject(new Error("Database connection could not be established."));
+
                             if (resp.recordset !== undefined && resp.recordset.length !== 0) {
                                 if (successfulTransactionDelegate) 
                                     resolve(successfulTransactionDelegate(resp.recordset));

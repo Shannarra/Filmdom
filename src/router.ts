@@ -8,7 +8,7 @@ import User from './models/user';
 
 const HANDLE_ERR = (res: Response, e: Error) => {
     if (e.toString() !== "404")
-        res.status(500).send(JSON.stringify({ message: e }));
+        res.status(500).send(JSON.stringify({ message: e.message }));
     else 
         res.status(404).send(JSON.stringify({ message: "Items not found"}));
 }
@@ -16,24 +16,18 @@ const HANDLE_ERR = (res: Response, e: Error) => {
 //#region gets
 
 //http://127.0.0.1:6188/api/movies
-router.get('/movies', (req: JWTVerifiedRequest, res: Response) => {
-    if (req.token) {
-        matchToken(req, res, async(e, data) => {
-            if (e)
-                HANDLE_ERR(res, e);
-            try {
-                res.send(
-                    JSON.stringify({
-                        movies: await Movie.All,
-                        //data: data
-                    })
-                );
-            } catch (e) {
-                console.log('here ' + req.token);
-                HANDLE_ERR(res, e);
-            }
-        })
-    }     
+router.get('/movies', async(req: JWTVerifiedRequest, res: Response) => {
+    try {
+        res.send(
+            JSON.stringify({
+                movies: await Movie.All,
+                //data: data
+            })
+        );
+    } catch (e) { 
+        console.log('here ' + req.token);
+        HANDLE_ERR(res, e);
+    }
 });
 
 router.get('/movie/:id', async (req: Request, res: Response) => {
@@ -81,27 +75,61 @@ router.put('/movie/:id', async (req: Request, res: Response) => {
 
 //#region posts
 router.post('/login', async(req: any, res: Response) => {
-    //TODO: find user by info
-
-
     if (!req.body) 
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
-    
+        
     const usr = req.body;
     const {error} = ApplicationRecord.validateUser(usr);
     if (!error) {
         const dbUser = new User(await User.authenticate(usr));
-
+        
         if (dbUser.matchesPropertiesCorrectly(usr))
             signToken(req, res, usr);
         else 
             HANDLE_ERR(res, new Error("Invalid user object"));
     }
     else
-     HANDLE_ERR(res, error);
-
-
+        HANDLE_ERR(res, error);
+    
+    
 })
+    
+router.post('/signup', async (req: Request, res: Response) => {
+    if (!req.body) 
+        res.send(JSON.stringify({message: "Empty request body"})).status(400);
+
+    const givenUser = req.body;
+    const {error} = ApplicationRecord.validateUser(givenUser);
+    if (!error) {
+        const prep = await User.prepare(givenUser); 
+       
+        let exists;
+        
+        try {
+            exists = await User.exists(prep);
+        }
+        catch (e) { /**user with that name doesn't exist */ }
+        
+        if (exists)
+            HANDLE_ERR(res, new Error(`User with "${prep.Name}" or with that email already exists!`))
+        else {
+            //user doesn't exist
+            try {
+                await User.create(prep);
+            } catch(e) {
+                if (e !== "404")
+                    HANDLE_ERR(res, e);
+                else
+                    res.send(JSON.stringify({
+                        message: "User \"" + prep.Name+ "\" created successfuly!"
+                    }));
+            }
+        }        
+    }
+    else 
+        HANDLE_ERR(res, error);
+})
+
 //#endregion
 
 export default router;
