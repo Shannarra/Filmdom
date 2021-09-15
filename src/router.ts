@@ -10,6 +10,8 @@ import fs, {writeFileSync, readFileSync, existsSync, open, readFile} from 'fs';
 
 const USER_STORAGE_PATH = './__user_storage.json';
 
+const GetCurrentUserInfo = () => JSON.parse(readFileSync(USER_STORAGE_PATH).toString());
+
 const HANDLE_ERR = (res: Response, e: Error) => {
     if (e.toString() !== "404")
         res.status(500).send(JSON.stringify({ message: e.message }));
@@ -51,13 +53,22 @@ router.get('/users', tokenVerifier, async(req: Request, res: Response) => {
     }
 });
 
-// http://127.0.0.1:6188/api/user/2/favourites
-router.get('/me/favourites', tokenVerifier, assure_logged_in, async (req: Request, res: Response) => {
+// http://127.0.0.1:6188/api/my/favourites
+router.get('/my/favourites', tokenVerifier, assure_logged_in, async (req: Request, res: Response) => {
     try {
         let id = JSON.parse(readFileSync(USER_STORAGE_PATH).toString()).Id;
-        
         res.send(await Favourites.UserFavourites(id));
     } catch (e) {
+        HANDLE_ERR(res, e);
+        
+    }
+})
+
+router.get('/my/info', tokenVerifier, assure_logged_in, async(req: Request, res: Response) => {
+    try {
+        res.send(readFileSync(USER_STORAGE_PATH))
+    } 
+    catch (e) {
         HANDLE_ERR(res, e);
     }
 })
@@ -159,6 +170,45 @@ router.post('/logout', (req: Request, res: Response) => {
     }
     
 })
+
+router.post('/my/favourites/add/:id', tokenVerifier, assure_logged_in, async(req: Request, res: Response) => {
+    try {
+        let movie = {};
+        try {
+            movie = await Movie.Find(Number(req.params.id));
+        } catch (error) {
+            HANDLE_ERR(res, new Error(`No movie with id "${req.params.id}" exists`))
+            return;
+        }
+        const usr = GetCurrentUserInfo();
+        let favourites = [];
+        try {
+            favourites = await Favourites.UserFavourites(usr.Id) as any[];
+        } catch (_er) {
+            // no favourites found
+            console.log("no favs");
+        }
+        
+        if (favourites.length > 0 && (favourites as any[]).find(x => x.Id == req.params.id)) {
+            HANDLE_ERR(res, new Error(`Movie with id "${req.params.id}" is already in user "${usr.Name}"s favourites`));
+        }
+        else {
+            try {
+                //@ts-ignore
+                await Favourites.AddFavourite(usr.Id, movie.Id)
+            } catch (error) {
+                //items not found error, we good!
+                res.send(JSON.stringify({
+                    //@ts-ignore
+                    message: `Movie "${movie.Title}" added to favourites!`
+                }));
+            }
+
+        }
+    } catch (error) {
+        HANDLE_ERR(res, error);
+    }
+});
 
 //#endregion
 

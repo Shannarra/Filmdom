@@ -33,7 +33,13 @@ app.use(express.json());
 app.use('/api', router);
 app.use(cookieParser());
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     // tslint:disable-next-line:no-console
     console.log("KÖÓOl b0s, im @ localhost:" + PORT);
+});
+
+
+import {writeFileSync} from 'fs';
+process.on('exit', () => {
+    writeFileSync('__user_storage.json', ''); 
 });

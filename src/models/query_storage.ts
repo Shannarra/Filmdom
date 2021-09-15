@@ -14,7 +14,7 @@ export default class QueryStorage {
             FindMovie: (id: number) => `select * from Movie where Id=${id}`,
             FindUser: (name: string, email: string) => `select * from MovieUser where Name='${name}' or Email='${email}'`, // the name IS unique
             Favourites: (id: number) => `select
-                                        Title, Director Description,
+                                        Movie.Id, Title, Director Description,
                                         Imagelink, Year, Duration, Genre,
                                         UserId=u.Id, UserName=u.Name from Movie
                                         join Favourites f
@@ -44,7 +44,10 @@ export default class QueryStorage {
     static get PostQueries() {
         return {
             MakeUser: (user: User) => `insert into MovieUser
-                                        values ('${user.Name}','${user.Email}','${user.Password}', '${user.IsAdmin}');`
+                                        values ('${user.Name}','${user.Email}','${user.Password}', '${user.IsAdmin}');`,
+            MakeFavourite: (userId: number, movieId: number) => 
+                                        `insert into Favourites
+                                        values ('${userId}','${movieId}');`
         }
     }
 }
