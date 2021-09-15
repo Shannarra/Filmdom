@@ -7,6 +7,7 @@ const SALTS = require('config').get('app.BcryptSalts')
 export default class User extends ApplicationRecord {
 
 
+    public Id: number;
     public Name: string;
     public Email: string;
     public Password: string;
@@ -16,13 +17,15 @@ export default class User extends ApplicationRecord {
     constructor(obj) {
         super();
         const { error } = ApplicationRecord.ValidateUser({
+            Id: obj.Id,
             Name: obj.Name,
             Email: obj.Email,
             Password: obj.Password,
             IsAdmin: obj.IsAdmin
         });
-
+        
         if (!error) {
+            this.Id = obj.Id;
             this.Name = obj.Name;
             this.Email = obj.Email;
             this.Password = obj.Password;
@@ -53,6 +56,7 @@ export default class User extends ApplicationRecord {
         let hashed = await User.Hash(givenUser);
 
         return new User({
+            Id: givenUser.Id,
             Name: givenUser.Name,
             Email: givenUser.Email,
             Password: hashed,

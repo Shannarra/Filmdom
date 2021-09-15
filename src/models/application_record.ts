@@ -61,6 +61,7 @@ export default class ApplicationRecord {
 
     static ValidateUser(wannabe: any) {
         const matcher = Joi.object({
+            Id: Joi.number(),
             Name: Joi
                     .string()
                     .min(2)

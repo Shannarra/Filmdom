@@ -11,12 +11,18 @@ export default class QueryStorage {
             AllUsers: () =>  "select * from MovieUser",
             // intentionally allowing `any` for ids[]
             MoviesFrom: (ids: any) => `select * from Movie where Id in (${ids})`,
-            UserFavouriteIds: (userid: number) => `select MovieId from 
-                                            MovieUser join Favourites
-                                            on MovieUser.Id = Favourites.UserId
-                                            where UserId = ${userid}`,
             FindMovie: (id: number) => `select * from Movie where Id=${id}`,
             FindUser: (name: string, email: string) => `select * from MovieUser where Name='${name}' or Email='${email}'`, // the name IS unique
+            Favourites: (id: number) => `select
+                                        Title, Director Description,
+                                        Imagelink, Year, Duration, Genre,
+                                        UserId=u.Id, UserName=u.Name from Movie
+                                        join Favourites f
+                                        on Id=MovieId
+                                        join MovieUser u
+                                        on UserId=u.Id
+                                        where u.Id=${id};
+                                        `
         }
     }
 
