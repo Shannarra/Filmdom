@@ -4,15 +4,21 @@ import bcrypt from 'bcryptjs';
 
 const SALTS = require('config').get('app.BcryptSalts')
 
-export default class User extends ApplicationRecord {
+export interface IUserProps {
+    Id?: number;
+    Name: string;
+    Email: string;
+    Password: string;
+    IsAdmin?: boolean;
+}
 
-
-    public Id: number;
-    public Name: string;
-    public Email: string;
-    public Password: string;
-    public IsAdmin: boolean;
-
+export default class User extends ApplicationRecord implements IUserProps {
+    
+    Id?: number;
+    Name: string;
+    Email: string;
+    Password: string;
+    IsAdmin?: boolean;
 
     constructor(obj) {
         super();
@@ -34,6 +40,7 @@ export default class User extends ApplicationRecord {
             throw error;
         }
     }
+    
 
     async MatchesPropertiesCorrectly(usr: User): Promise<boolean> {
         //the "this" is the DB user
@@ -100,13 +107,19 @@ export default class User extends ApplicationRecord {
         );
     }
 
+    static Update(user: User, newValues: IUserProps) {
+        return ApplicationRecord.PromiseHandledSQLTransaction(
+            QueryStorage.UpdateQueries.UpdateUser(user, newValues)
+        )
+    }
+
     static get All() {
         return ApplicationRecord.PromiseHandledSQLTransaction(
             QueryStorage.GetQueries.AllUsers()
         );
     }
 
-    private static Hash(givenUser): Promise<string> {
+    static Hash(givenUser): Promise<string> {
         return new Promise(
             (resolve, reject) => {
                 bcrypt.genSalt(SALTS, (e, salt) => {

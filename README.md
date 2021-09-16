@@ -21,4 +21,5 @@ It was the simples project we could think of.
 | POST     | ```/api/signup```                          | A User object                         | Creates a new user                        |
 | POST     | ```/api/login```                           | A User object                         | Logs a user in                            |
 | POST     | ```/api/logout```                          | N/A                                   | Logs a user out                           |
+| PUT      | ```/api/my/update```                       | A User object                         | Updates a user                            |
 | PUT      | ```/api/movie/:id```                       | A modified full movie object to update| Updates the given movie                   |

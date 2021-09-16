@@ -1,1 +1,1 @@
-{"Id":27,"Name":"Test","Email":"test@mail.com","Password":"$2a$04$acScYd6XW.q3c.wMRO2jJ.sK6ytiGuvz412zlsValFArSgl2ZH0Ai","IsAdmin":false}
+{"Id":28,"Name":"Admin","Email":"admin@mail.com","Password":"$2a$04$fKBc6/Xp8o5wfnXh6WIAj.E0l7VjA47mNcyj58xvqIZcUhLQ65jeO","IsAdmin":true}

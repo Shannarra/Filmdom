@@ -5,7 +5,7 @@ import assure_logged_in from './middleware/logged';
 import ApplicationRecord from './models/application_record';
 import Favourites from './models/favourites';
 import Movie from './models/movie';
-import User from './models/user';
+import User, { IUserProps } from './models/user';
 import fs, {writeFileSync, readFileSync, existsSync, open, readFile} from 'fs';
 
 const USER_STORAGE_PATH = './__user_storage.json';
@@ -82,6 +82,41 @@ router.put('/movie/:id', async (req: Request, res: Response) => {
         console.log(req.body);
         res.send(req.body);
         //res.send(await Movie.Update(req.params.id, req.body))
+    } catch (e) {
+        HANDLE_ERR(res, e);
+    }
+});
+
+/**
+ * Updating the user does NOT allow change of password and admin
+ * state UNLESS it's performed by an admin itself!
+ */
+router.put('/my/update', async (req: Request, res: Response) => {
+
+
+
+    try {
+        const curr = new User(GetCurrentUserInfo())
+        
+       
+        //@ts-ignore
+        if (await User.ComparePasswords(req.body.Password, curr.Password)) { //the body is the same as the current user
+            try {
+                await User.Update(curr, req.body);
+            }
+            catch (_er) { 
+                if(_er !== "404")
+                    HANDLE_ERR(res, _er);
+                else 
+                    res.send(JSON.stringify(
+                        {message: "User updated successfully!"}
+                    ));
+            }
+        } else { // tryna update someone else's profile, eh? Fuck off
+            HANDLE_ERR(res, new Error("Cannot access another person's profile"));
+            return;
+        }
+        
     } catch (e) {
         HANDLE_ERR(res, e);
     }
@@ -196,7 +231,7 @@ router.post('/my/favourites/add/:id', tokenVerifier, assure_logged_in, async(req
             try {
                 //@ts-ignore
                 await Favourites.AddFavourite(usr.Id, movie.Id)
-            } catch (error) {
+            } catch (_e) {
                 //items not found error, we good!
                 res.send(JSON.stringify({
                     //@ts-ignore

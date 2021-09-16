@@ -1,5 +1,5 @@
 import IMovie from "./movie";
-import User from "./user";
+import User, { IUserProps } from "./user";
 
 /**
  * Stores queries for each SQL command.
@@ -37,7 +37,12 @@ export default class QueryStorage {
                                     Year = '${movie.Year}',
                                     Duration = '${movie.Duration}',
                                     Genre = '${movie.Genre}',
-                                    where Id=${id}`
+                                    where Id=${id}`,
+            UpdateUser: (user: User, values: IUserProps) => `update MovieUser
+                                    set
+                                    Name='${values.Name}',
+                                    Email='${values.Email}'                                    
+                                    where Id=${user.Id}`,
         }
     }
 
