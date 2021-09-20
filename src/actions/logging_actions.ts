@@ -7,13 +7,13 @@ import HANDLE_ERR from './helpers/error';
 import { USER_STORAGE_PATH } from './helpers/util';
 
 export async function LogIn(req: Request, res: Response){
-    if (!req.body) 
+    if (!req.body)
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
     if (!existsSync(USER_STORAGE_PATH)){
-        writeFileSync(USER_STORAGE_PATH, ''); //WARN!: Nodemon will restart the server upon file creation
+        writeFileSync(USER_STORAGE_PATH, ''); // WARN!: Nodemon will restart the server upon file creation
     }
-        
+
     const usr = req.body;
     const {error} = ApplicationRecord.ValidateUser(usr);
     if (!error) {
@@ -26,20 +26,20 @@ export async function LogIn(req: Request, res: Response){
             return HANDLE_ERR(res, err)
         }
 
-        let data = readFileSync(USER_STORAGE_PATH);
-        
+        const data = readFileSync(USER_STORAGE_PATH);
+
         if (data.length > 0) {
             HANDLE_ERR(res, new Error("There is a user logged in already"));
             return;
         }
-        
+
         if (await dbUser.MatchesPropertiesCorrectly(usr))
-        { 
+        {
             writeFileSync(USER_STORAGE_PATH, JSON.stringify(dbUser));
 
-            signToken(req, res, usr); 
+            signToken(req, res, usr);
         }
-        else 
+        else
             HANDLE_ERR(res, new Error("Invalid user object"));
     }
     else
@@ -47,25 +47,26 @@ export async function LogIn(req: Request, res: Response){
 }
 
 export async function SignUp(req: Request, res: Response){
-    if (!req.body) 
+    if (!req.body)
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
     const givenUser = req.body;
     const {error} = ApplicationRecord.ValidateUser(givenUser);
     if (!error) {
-        const prep = await User.Prepare(givenUser); 
-       
+        const prep = await User.Prepare(givenUser);
+
         let exists;
-        
+
         try {
             exists = await User.Exists(prep);
         }
+        // tslint:disable jsdoc-format
         catch (e) { /**user with that name doesn't exist */ }
-        
+
         if (exists)
             HANDLE_ERR(res, new Error(`User with "${prep.Name}" or with that email already exists!`))
         else {
-            //user doesn't exist
+            // user doesn't exist
             try {
                 await User.Create(prep);
             } catch(e) {
@@ -76,9 +77,9 @@ export async function SignUp(req: Request, res: Response){
                         message: "User \"" + prep.Name+ "\" created successfuly!"
                     }));
             }
-        }        
+        }
     }
-    else 
+    else
         HANDLE_ERR(res, error);
 }
 

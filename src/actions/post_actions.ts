@@ -18,20 +18,23 @@ export async function AddFavourite(req: Request, res: Response){
         let favourites = [];
         try {
             favourites = await Favourites.UserFavourites(usr.Id) as any[];
-        } catch (_er) {
         }
-        
+        // tslint:disable no-empty
+        catch (_er) {
+        }
+
+        // tslint:disable triple-equals
         if (favourites.length > 0 && (favourites as any[]).find(x => x.Id == req.params.id)) {
             HANDLE_ERR(res, new Error(`Movie with id "${req.params.id}" is already in user "${usr.Name}"s favourites`));
         }
         else {
             try {
-                //@ts-ignore
+                // @ts-ignore
                 await Favourites.AddFavourite(usr.Id, movie.Id)
             } catch (_e) {
-                //items not found error, we good!
+                // items not found error, we good!
                 res.send(JSON.stringify({
-                    //@ts-ignore
+                    // @ts-ignore
                     message: `Movie "${movie.Title}" added to favourites!`
                 }));
             }
@@ -43,7 +46,7 @@ export async function AddFavourite(req: Request, res: Response){
 }
 
 export async function CreateMovie(req: Request, res: Response){
-    if (!req.body) 
+    if (!req.body)
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
     const movieSent = req.body;
@@ -62,11 +65,13 @@ export async function CreateMovie(req: Request, res: Response){
             HANDLE_ERR(res, new Error(`Movie with title "${movieSent.Title}" and picture already exists!`))
         } else {
             try {
-                await Movie.Create(movieSent);       
-            } catch (__e) {
-                if (__e !== "404") 
+                await Movie.Create(movieSent);
+            }
+            // tslint:disable variable-name
+            catch (__e) {
+                if (__e !== "404")
                     HANDLE_ERR(res, __e);
-                else 
+                else
                     res.send(JSON.stringify({
                         message: "Movie \"" + movieSent.Title + "\" created successfuly!"
                     }));

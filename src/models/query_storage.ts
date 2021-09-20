@@ -12,7 +12,7 @@ export default class QueryStorage {
             // intentionally allowing `any` for ids[]
             MoviesFrom: (ids: any) => `select * from Movie where Id in (${ids})`,
             FindMovie: (id: number) => `select * from Movie where Id=${id}`,
-            FindMovieByPpops: (props: IMovie) => `select * from Movie where Title='${props.Title}' and ImageLink='${props.ImageLink}'`, //maybe we'll add director matching as well later on? :thinking:
+            FindMovieByPpops: (props: IMovie) => `select * from Movie where Title='${props.Title}' and ImageLink='${props.ImageLink}'`, // maybe we'll add director matching as well later on? :thinking:
             FindUser: (name: string, email: string) => `select * from MovieUser where Name='${name}' and Email='${email}'`, // the name IS unique
             Favourites: (id: number) => `select
                                         Movie.Id, Title, Director Description,
@@ -29,10 +29,10 @@ export default class QueryStorage {
 
     static get UpdateQueries() {
         return {
-            UpdateMovie: (movie: IMovie, id: number) => `update Movie 
-                                    set 
-                                    Title = '${movie.Title}', 
-                                    Director = '${movie.Director}', 
+            UpdateMovie: (movie: IMovie, id: number) => `update Movie
+                                    set
+                                    Title = '${movie.Title}',
+                                    Director = '${movie.Director}',
                                     Description = '${movie.Description}',
                                     ImageLink = '${movie.ImageLink}',
                                     Year = '${movie.Year}',
@@ -42,7 +42,7 @@ export default class QueryStorage {
             UpdateUser: (user: User, values: IUserProps) => `update MovieUser
                                     set
                                     Name='${values.Name}',
-                                    Email='${values.Email}'                                    
+                                    Email='${values.Email}'
                                     where Id=${user.Id}`,
         }
     }
@@ -54,7 +54,7 @@ export default class QueryStorage {
         return {
             MakeUser: (user: User) => `insert into MovieUser
                                         values ('${user.Name}','${user.Email}','${user.Password}', '${user.IsAdmin}');`,
-            MakeFavourite: (userId: number, movieId: number) => 
+            MakeFavourite: (userId: number, movieId: number) =>
                                         `insert into Favourites
                                         values ('${userId}','${movieId}');`,
             MakeMovie: (movie: IMovie) => `insert into Movie
@@ -63,7 +63,7 @@ export default class QueryStorage {
                                                 '${movie.Director}',
                                                 '${movie.Description}',
                                                 '${movie.ImageLink}',
-                                                ${movie.Year}, 
+                                                ${movie.Year},
                                                 ${movie.Duration},
                                                 '${movie.Genre}');`
         }
@@ -72,7 +72,7 @@ export default class QueryStorage {
     static get DeleteQueries() {
         return {
             DeleteFromFavourites: (userId: number, movieId: number) => `delete from
-                                                                        Favourites 
+                                                                        Favourites
                                                                         where UserId=${userId}
                                                                         and MovieId=${movieId};`,
             DeleteAllFavourites: (userId: number) => `delete from Favourites where UserId=${userId};`,

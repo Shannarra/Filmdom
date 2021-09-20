@@ -1,3 +1,4 @@
+// tslint:disable no-var-requires
 const router = require('express').Router();
 import {Response, Request} from 'express';
 import JWTVerifiedRequest, {tokenVerifier} from './middleware/jwt';
@@ -12,7 +13,7 @@ import { DeleteAFavourite, DeleteAllFavourites, DeleteMovie } from './actions/de
 router.get('/*', (_, res, next) => {
     res.setHeader('Content-Type', 'application/json')
     next()
-}).post('/*', (_, res, next) =>{ 
+}).post('/*', (_, res, next) =>{
     res.setHeader('Content-Type', 'application/json')
     next()
 }).put('/*', (_, res, next) => {
@@ -25,7 +26,7 @@ router.get('/*', (_, res, next) => {
 
 //#region gets
 
-//http://127.0.0.1:6188/api/movies
+// http://127.0.0.1:6188/api/movies
 router.get('/movies', async(req: JWTVerifiedRequest, res: Response) => {
     await GetAllMovies(req, res);
 });
@@ -34,7 +35,7 @@ router.get('/movie/:id', async (req: Request, res: Response) => {
     await GetMovieById(req, res);
 });
 
-//http://127.0.0.1:6188/api/users
+// http://127.0.0.1:6188/api/users
 router.get('/users', tokenVerifier, assure_logged_in, async(req: Request, res: Response) => {
     await GetAllUsers(req, res);
 });
@@ -69,13 +70,13 @@ router.put('/my/update', tokenVerifier, assure_logged_in, async (req: Request, r
 router.post('/login', async(req: any, res: Response) => {
     await LogIn(req, res);
 })
-    
+
 router.post('/signup', async (req: Request, res: Response) => {
     await SignUp(req, res);
 })
 
 router.post('/logout', (req: Request, res: Response) => {
-    LogOut(req, res);    
+    LogOut(req, res);
 })
 
 router.post('/my/favourites/add/:id', tokenVerifier, assure_logged_in, async(req: Request, res: Response) => {

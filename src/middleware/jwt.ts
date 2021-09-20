@@ -10,13 +10,13 @@ export default interface JWTVerifiedRequest extends Request {
 }
 
 export function tokenVerifier(req: JWTVerifiedRequest, res: Response, next: any) {
-    const bearer = req.headers['authorization'];
+    const bearer = req.headers.authorization;
     if (bearer) {
         req.token = bearer.split(' ')[1];
         matchToken(req, res, next);
     } else {
         res.status(403).send("{message: \"Access forbidden.\"}");
-    }    
+    }
 }
 
 export function matchToken(req: JWTVerifiedRequest, res: Response, callback: any) {
@@ -36,7 +36,7 @@ export function signToken(req: Request, res: Response, user: User) {
         (e, token) => {
             if (e)
                 res.send(e).status(500);
-            res.json({token: token});
+            res.json({token});
         }
     )
 }

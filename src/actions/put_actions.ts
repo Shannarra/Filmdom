@@ -7,27 +7,27 @@ import GetCurrentUserInfo, { USER_STORAGE_PATH } from './helpers/util';
 
 export async function UpdateMovie(req: Request, res: Response){
     try {
-        //@ts-ignore
+        // @ts-ignore
         await Movie.Find(req.params.id);
 
         try {
             const {error} = ApplicationRecord.ValidateMovie(req.body);
-            
+
             if (!error)
-                //@ts-ignore
+                // @ts-ignore
                 await Movie.Update(Number(req.params.id), req.body);
             else
                 HANDLE_ERR(res, error)
         } catch (er) {
             if (er !== "404")
                 HANDLE_ERR(res, er);
-            else 
+            else
                 res.send(JSON.stringify({
                     message: "Movie updated!"
                 }));
         }
     } catch (_error) {
-        if (_error === "404") 
+        if (_error === "404")
             HANDLE_ERR(res, new Error("Movie with this id doensn't exist"))
         else
             HANDLE_ERR(res, _error);
@@ -37,16 +37,16 @@ export async function UpdateMovie(req: Request, res: Response){
 export async function UpdateAccount(req: Request, res: Response){
     try {
         const curr = new User(GetCurrentUserInfo())
-        
-    //@ts-ignore
-        if (await User.ComparePasswords(req.body.Password, curr.Password)) { //the body is the same as the current user
+
+    // @ts-ignore
+        if (await User.ComparePasswords(req.body.Password, curr.Password)) { // the body is the same as the current user
             try {
                 await User.Update(curr, req.body);
             }
-            catch (_er) { 
+            catch (_er) {
                 if(_er !== "404")
                     HANDLE_ERR(res, _er);
-                else 
+                else
                     res.send(JSON.stringify(
                         {message: "User updated successfully!"}
                         ));

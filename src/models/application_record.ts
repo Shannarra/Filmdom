@@ -1,11 +1,11 @@
-//@ts-ignore
+// tslint:disable no-var-requires
 const DB_CONFIG = require('config').get('app.db');
 import mssql, {IResult, IRecordSet, Request} from 'mssql';
 import Joi from 'joi';
 
 /**
- * Base for ALL application record models, 
- * inspired by Rails' 
+ * Base for ALL application record models,
+ * inspired by Rails'
  * ActiveRecord::Base::ApplicationRecord (https://www.bigbinary.com/blog/application-record-in-rails-5)
  */
 export default class ApplicationRecord {
@@ -20,11 +20,11 @@ export default class ApplicationRecord {
     }
 
     /**
-     * Makes and returns a promise for the given `transaction`, 
+     * Makes and returns a promise for the given `transaction`,
      * result could be altered by the given `successfulTransactionDelegate` param.
      * @param {QueryStorage} transaction -  a query that needs to be passed. REQUIRED!
      * @param {Function<IRecordSet<any>>} successfulTransactionDelegate - a middleware delegate (handler) before resolving the query.
-     * @returns 
+     * @returns
      */
     static PromiseHandledSQLTransaction(transaction: string,
             successfulTransactionDelegate?: ((items: IRecordSet<any>) => any[])
@@ -32,9 +32,9 @@ export default class ApplicationRecord {
         return new Promise(
             async(resolve, reject) => {
                 mssql.connect(ApplicationRecord.BaseConfig, (er: Error) => {
-                    if (er) 
+                    if (er)
                         reject(er);
-                    
+
                     new Request()
                         .query(transaction, (e: Error, resp: IResult<any>) => {
                             if (e)
@@ -44,11 +44,11 @@ export default class ApplicationRecord {
                                 reject(new Error("Database connection could not be established."));
 
                             if (resp && resp.recordset !== undefined && resp.recordset.length !== 0) {
-                                if (successfulTransactionDelegate) 
+                                if (successfulTransactionDelegate)
                                     resolve(successfulTransactionDelegate(resp.recordset));
                                 else
                                     resolve(resp.recordset);
-                            } 
+                            }
                             else
                                 reject("404");
                         })
@@ -76,10 +76,10 @@ export default class ApplicationRecord {
             IsAdmin: Joi
                     .bool()
         });
-        
+
         return matcher.validate(wannabe);
     }
-    
+
     static ValidateMovie(movieSent: any): Joi.ValidationResult {
         const matcher = Joi.object({
             Title: Joi

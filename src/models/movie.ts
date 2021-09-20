@@ -8,23 +8,23 @@ export default interface IMovie {
     Description: string,
     ImageLink: string,
     Year: number,
-    Duration: number, 
+    Duration: number,
     Genre: string
 }
 
 export default class Movie extends ApplicationRecord {
-    
-    
+
+
     constructor() {
         super();
     }
 
     static get All() {
         return this.PromiseHandledSQLTransaction(
-            QueryStorage.GetQueries.AllMovies()    
-        );  
+            QueryStorage.GetQueries.AllMovies()
+        );
     }
-    
+
     static Create(movieSent: IMovie) {
         return this.PromiseHandledSQLTransaction(
             QueryStorage.PostQueries.MakeMovie(movieSent)
@@ -38,7 +38,7 @@ export default class Movie extends ApplicationRecord {
             (items) => {
                 return items[0];
             }
-        );  
+        );
     }
 
     static FindByProps(props: IMovie) {
@@ -55,7 +55,7 @@ export default class Movie extends ApplicationRecord {
             QueryStorage.UpdateQueries.UpdateMovie(
                 movie,
                 id
-            )    
+            )
         );
     }
     static Delete(id: number) {

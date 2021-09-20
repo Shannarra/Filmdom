@@ -8,16 +8,16 @@ export async function DeleteAFavourite(req: Request, res: Response){
     try {
         const usr: User = GetCurrentUserInfo();
         try {
-            //@ts-ignore
+            // @ts-ignore
             await Movie.Find(req.params.id)
         } catch (_er) {
-           return HANDLE_ERR(res, _er);            
+           return HANDLE_ERR(res, _er);
         }
         await User.RemoveFromFavourites(usr.Id, Number(req.params.id));
     } catch (error) {
         if (error !== "404")
             HANDLE_ERR(res, error);
-        else 
+        else
             res.send(JSON.stringify({
                 message: `Movie with id "${req.params.id}" removed from favourites`
             }));
@@ -31,7 +31,7 @@ export async function DeleteAllFavourites(req: Request, res: Response){
     } catch (error) {
         if (error !== "404")
             HANDLE_ERR(res, error);
-        else 
+        else
             res.send(JSON.stringify({
                 message: `All your favourites were removed!`
             }));
@@ -52,7 +52,7 @@ export async function DeleteMovie(req: Request, res: Response){
         } catch (error) {
             if (error !== "404")
                 HANDLE_ERR(res, error);
-            else 
+            else
                 res.send(JSON.stringify({
                     message: `Movie with id "${req.params.id}" deleted successfuly!`
                 }));

@@ -14,7 +14,7 @@ export async function GetAllMovies(req: JWTVerifiedRequest, res: Response){
                 movies: await Movie.All
             })
         );
-    } catch (e) { 
+    } catch (e) {
         HANDLE_ERR(res, e);
     }
 }
@@ -40,7 +40,7 @@ export async function GetAllUsers(req: Request, res: Response){
 
 export async function GetMyFavourites(req: Request, res: Response){
     try {
-        let id = JSON.parse(readFileSync(USER_STORAGE_PATH).toString()).Id;
+        const id = JSON.parse(readFileSync(USER_STORAGE_PATH).toString()).Id;
         res.send(await Favourites.UserFavourites(id));
     } catch (e) {
         HANDLE_ERR(res, e);
@@ -51,7 +51,7 @@ export async function GetMyFavourites(req: Request, res: Response){
 export async function GetMyInfo(req: Request, res: Response){
     try {
         res.send(readFileSync(USER_STORAGE_PATH))
-    } 
+    }
     catch (e) {
         HANDLE_ERR(res, e);
     }

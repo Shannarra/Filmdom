@@ -2,7 +2,7 @@ import ApplicationRecord from './application_record';
 import QueryStorage from './query_storage';
 import bcrypt from 'bcryptjs';
 
-//@ts-ignore
+// tslint:disable no-var-requires
 const SALTS = require('config').get('app.BcryptSalts')
 
 export interface IUserProps {
@@ -14,8 +14,8 @@ export interface IUserProps {
 }
 
 export default class User extends ApplicationRecord implements IUserProps {
-    
-    
+
+
     Id?: number;
     Name: string;
     Email: string;
@@ -31,7 +31,7 @@ export default class User extends ApplicationRecord implements IUserProps {
             Password: obj.Password,
             IsAdmin: obj.IsAdmin
         });
-        
+
         if (!error) {
             this.Id = obj.Id;
             this.Name = obj.Name;
@@ -42,10 +42,10 @@ export default class User extends ApplicationRecord implements IUserProps {
             throw error;
         }
     }
-    
+
 
     async MatchesPropertiesCorrectly(usr: User): Promise<boolean> {
-        //the "this" is the DB user
+        // the "this" is the DB user
 
         const passwordsMatch = await User.ComparePasswords(usr.Password, this.Password);
 
@@ -57,12 +57,12 @@ export default class User extends ApplicationRecord implements IUserProps {
         );
     }
 
-    static async ComparePasswords(user_pass, from_db) {
-        return await bcrypt.compare(user_pass, from_db);
+    static async ComparePasswords(userPass, fromDb) {
+        return await bcrypt.compare(userPass, fromDb);
     }
 
     static async Prepare(givenUser: any): Promise<User> {
-        let hashed = await User.Hash(givenUser);
+        const hashed = await User.Hash(givenUser);
 
         return new User({
             Id: givenUser.Id,
@@ -114,19 +114,19 @@ export default class User extends ApplicationRecord implements IUserProps {
             QueryStorage.UpdateQueries.UpdateUser(user, newValues)
         )
     }
-    
+
     static RemoveFromFavourites(userid: number, movieId: number) {
         return this.PromiseHandledSQLTransaction(
             QueryStorage.DeleteQueries.DeleteFromFavourites(userid, movieId)
         )
     }
-        
+
     static RemoveAllFavourites(id: number) {
         return this.PromiseHandledSQLTransaction(
             QueryStorage.DeleteQueries.DeleteAllFavourites(id)
         )
     }
-    
+
 
     static get All() {
         return ApplicationRecord.PromiseHandledSQLTransaction(
@@ -139,11 +139,11 @@ export default class User extends ApplicationRecord implements IUserProps {
             (resolve, reject) => {
                 bcrypt.genSalt(SALTS, (e, salt) => {
                     if (!e)
-                        bcrypt.hash(givenUser.Password, salt, (e, hash) => {
-                            if (!e)
+                        bcrypt.hash(givenUser.Password, salt, (er, hash) => {
+                            if (!er)
                                 resolve(hash);
                             else
-                                reject(e);
+                                reject(er);
                         })
                     else
                         reject(e);

@@ -19,15 +19,15 @@ the routing declaration. Took me too much time to figure this shit out, and I'm 
 the JS shitfuckery...
 Link to solution: https://stackoverflow.com/a/39796445/11542917
 */
-app.use(session({ 
-    resave: true, 
-    secret: '123456', 
+app.use(session({
+    resave: true,
+    secret: '123456',
     saveUninitialized: true,
     cookie: {
         expires: new Date(Date.now() + 3600),
         secure: true
     }
-})); 
+}));
 app.use(cors());
 app.use(express.json());
 app.use('/api', router);
@@ -41,5 +41,5 @@ const server = app.listen(PORT, () => {
 
 import {writeFileSync} from 'fs';
 process.on('exit', () => {
-    writeFileSync('__user_storage.json', ''); 
+    writeFileSync('__user_storage.json', '');
 });
