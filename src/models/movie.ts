@@ -7,8 +7,8 @@ export default interface IMovie {
     Director: string,
     Description: string,
     ImageLink: string,
-    Year: Number,
-    Duration: Number, 
+    Year: number,
+    Duration: number, 
     Genre: string
 }
 

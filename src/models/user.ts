@@ -2,6 +2,7 @@ import ApplicationRecord from './application_record';
 import QueryStorage from './query_storage';
 import bcrypt from 'bcryptjs';
 
+//@ts-ignore
 const SALTS = require('config').get('app.BcryptSalts')
 
 export interface IUserProps {

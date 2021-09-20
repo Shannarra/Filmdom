@@ -19,8 +19,6 @@ export async function AddFavourite(req: Request, res: Response){
         try {
             favourites = await Favourites.UserFavourites(usr.Id) as any[];
         } catch (_er) {
-            // no favourites found
-            console.log("no favs");
         }
         
         if (favourites.length > 0 && (favourites as any[]).find(x => x.Id == req.params.id)) {

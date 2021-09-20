@@ -15,7 +15,6 @@ export async function GetAllMovies(req: JWTVerifiedRequest, res: Response){
             })
         );
     } catch (e) { 
-        console.log('here ' + req.token);
         HANDLE_ERR(res, e);
     }
 }

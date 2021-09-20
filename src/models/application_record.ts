@@ -1,3 +1,4 @@
+//@ts-ignore
 const DB_CONFIG = require('config').get('app.db');
 import mssql, {IResult, IRecordSet, Request} from 'mssql';
 import Joi from 'joi';
@@ -8,10 +9,6 @@ import Joi from 'joi';
  * ActiveRecord::Base::ApplicationRecord (https://www.bigbinary.com/blog/application-record-in-rails-5)
  */
 export default class ApplicationRecord {
-    
-
-    constructor() {}
-
     /**
      * Gives base configuration for the SQL connections
      */
@@ -34,9 +31,9 @@ export default class ApplicationRecord {
             ) {
         return new Promise(
             async(resolve, reject) => {
-                mssql.connect(ApplicationRecord.BaseConfig, (e: Error) => {
-                    if (e) 
-                        reject(e);
+                mssql.connect(ApplicationRecord.BaseConfig, (er: Error) => {
+                    if (er) 
+                        reject(er);
                     
                     new Request()
                         .query(transaction, (e: Error, resp: IResult<any>) => {
