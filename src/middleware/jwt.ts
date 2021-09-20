@@ -13,7 +13,7 @@ export function tokenVerifier(req: JWTVerifiedRequest, res: Response, next: any)
     const bearer = req.headers['authorization'];
     if (bearer) {
         req.token = bearer.split(' ')[1];
-        next();
+        matchToken(req, res, next);
     } else {
         res.status(403).send("{message: \"Access forbidden.\"}");
     }    

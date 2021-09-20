@@ -68,4 +68,15 @@ export default class QueryStorage {
                                                 '${movie.Genre}');`
         }
     }
+
+    static get DeleteQueries() {
+        return {
+            DeleteFromFavourites: (userId: number, movieId: number) => `delete from
+                                                                        Favourites 
+                                                                        where UserId=${userId}
+                                                                        and MovieId=${movieId};`,
+            DeleteAllFavourites: (userId: number) => `delete from Favourites where UserId=${userId};`,
+            DeleteMovie: (movieId: number) => `delete from Movie where Id=${movieId}`
+        }
+    }
 }

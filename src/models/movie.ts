@@ -14,6 +14,7 @@ export default interface IMovie {
 
 export default class Movie extends ApplicationRecord {
     
+    
     constructor() {
         super();
     }
@@ -56,5 +57,10 @@ export default class Movie extends ApplicationRecord {
                 id
             )    
         );
+    }
+    static Delete(id: number) {
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.DeleteQueries.DeleteMovie(id)
+        )
     }
 }

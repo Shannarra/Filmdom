@@ -14,6 +14,7 @@ export interface IUserProps {
 
 export default class User extends ApplicationRecord implements IUserProps {
     
+    
     Id?: number;
     Name: string;
     Email: string;
@@ -112,6 +113,19 @@ export default class User extends ApplicationRecord implements IUserProps {
             QueryStorage.UpdateQueries.UpdateUser(user, newValues)
         )
     }
+    
+    static RemoveFromFavourites(userid: number, movieId: number) {
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.DeleteQueries.DeleteFromFavourites(userid, movieId)
+        )
+    }
+        
+    static RemoveAllFavourites(id: number) {
+        return this.PromiseHandledSQLTransaction(
+            QueryStorage.DeleteQueries.DeleteAllFavourites(id)
+        )
+    }
+    
 
     static get All() {
         return ApplicationRecord.PromiseHandledSQLTransaction(
