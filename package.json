@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Shannarra/Filmdom#readme",
   "dependencies": {
+    "ts-node": "10.2.1",
     "@types/bcryptjs": "^2.4.2",
     "bcryptjs": "^2.4.3",
     "config": "^3.3.6",

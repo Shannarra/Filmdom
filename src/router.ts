@@ -7,17 +7,31 @@ import Favourites from './models/favourites';
 import Movie from './models/movie';
 import User, { IUserProps } from './models/user';
 import fs, {writeFileSync, readFileSync, existsSync, open, readFile} from 'fs';
+import QueryStorage from './models/query_storage';
+import IMovie from './models/movie';
 
 const USER_STORAGE_PATH = './__user_storage.json';
 
 const GetCurrentUserInfo = () => JSON.parse(readFileSync(USER_STORAGE_PATH).toString());
 
 const HANDLE_ERR = (res: Response, e: Error) => {
+    res.setHeader('Content-Type', 'application/json');
     if (e.toString() !== "404")
         res.status(500).send(JSON.stringify({ message: e.message }));
     else 
         res.status(404).send(JSON.stringify({ message: "Items not found"}));
 }
+
+router.get('/*', (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json')
+    next()
+}).post('/*', (req, res, next) =>{ 
+    res.setHeader('Content-Type', 'application/json')
+    next()
+}).put('/*', (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json')
+    next()
+});
 
 //#region gets
 
@@ -45,9 +59,12 @@ router.get('/movie/:id', async (req: Request, res: Response) => {
 });
 
 //http://127.0.0.1:6188/api/users
-router.get('/users', tokenVerifier, async(req: Request, res: Response) => {
+router.get('/users', tokenVerifier, assure_logged_in, async(req: Request, res: Response) => {
     try {
-        res.send(await User.All);
+        if (GetCurrentUserInfo().IsAdmin)
+            res.send(await User.All);
+        else
+            HANDLE_ERR(res, new Error("You don't have the privileges to acces this info!"))
     } catch (e) {
         HANDLE_ERR(res, e);
     }
@@ -77,29 +94,44 @@ router.get('/my/info', tokenVerifier, assure_logged_in, async(req: Request, res:
 
 
 //#region updates
-router.put('/movie/:id', async (req: Request, res: Response) => {
+router.put('/movie/update/:id', tokenVerifier, assure_logged_in, async (req: Request, res: Response) => {
     try {
-        console.log(req.body);
-        res.send(req.body);
-        //res.send(await Movie.Update(req.params.id, req.body))
-    } catch (e) {
-        HANDLE_ERR(res, e);
+        //@ts-ignore
+        await Movie.Find(req.params.id);
+
+        try {
+            const {error} = ApplicationRecord.ValidateMovie(req.body);
+            
+            if (!error)
+                //@ts-ignore
+                await Movie.Update(Number(req.params.id), req.body);
+            else
+                HANDLE_ERR(res, error)
+        } catch (er) {
+            if (er !== "404")
+                HANDLE_ERR(res, er);
+            else 
+                res.send(JSON.stringify({
+                    message: "Movie updated!"
+                }));
+        }
+    } catch (_error) {
+        if (_error === "404") 
+            HANDLE_ERR(res, new Error("Movie with this id doensn't exist"))
+        else
+            HANDLE_ERR(res, _error);
     }
 });
 
 /**
  * Updating the user does NOT allow change of password and admin
- * state UNLESS it's performed by an admin itself!
+ * state!
  */
-router.put('/my/update', async (req: Request, res: Response) => {
-
-
-
+router.put('/my/update', tokenVerifier, assure_logged_in, async (req: Request, res: Response) => {
     try {
         const curr = new User(GetCurrentUserInfo())
         
-       
-        //@ts-ignore
+    //@ts-ignore
         if (await User.ComparePasswords(req.body.Password, curr.Password)) { //the body is the same as the current user
             try {
                 await User.Update(curr, req.body);
@@ -110,13 +142,12 @@ router.put('/my/update', async (req: Request, res: Response) => {
                 else 
                     res.send(JSON.stringify(
                         {message: "User updated successfully!"}
-                    ));
+                        ));
             }
         } else { // tryna update someone else's profile, eh? Fuck off
             HANDLE_ERR(res, new Error("Cannot access another person's profile"));
             return;
         }
-        
     } catch (e) {
         HANDLE_ERR(res, e);
     }
@@ -243,6 +274,41 @@ router.post('/my/favourites/add/:id', tokenVerifier, assure_logged_in, async(req
     } catch (error) {
         HANDLE_ERR(res, error);
     }
+});
+
+router.post('/movie/create', tokenVerifier, async(req: Request, res: Response) => {
+    if (!req.body) 
+        res.send(JSON.stringify({message: "Empty request body"})).status(400);
+
+    const movieSent = req.body;
+    const {error} = ApplicationRecord.ValidateMovie(movieSent);
+
+    if (!error) {
+        let exists;
+        try {
+            exists = await Movie.FindByProps(movieSent);
+        } catch (_e) {
+            if (_e !== "404")
+                HANDLE_ERR(res, _e);
+        }
+
+        if (exists) {
+            HANDLE_ERR(res, new Error(`Movie with title "${movieSent.Title}" and picture already exists!`))
+        } else {
+            try {
+                await Movie.Create(movieSent);       
+            } catch (__e) {
+                if (__e !== "404") 
+                    HANDLE_ERR(res, __e);
+                else 
+                    res.send(JSON.stringify({
+                        message: "Movie \"" + movieSent.Title + "\" created successfuly!"
+                    }));
+            }
+        }
+    }
+    else
+        HANDLE_ERR(res, error);
 });
 
 //#endregion

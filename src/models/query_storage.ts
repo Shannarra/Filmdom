@@ -12,7 +12,8 @@ export default class QueryStorage {
             // intentionally allowing `any` for ids[]
             MoviesFrom: (ids: any) => `select * from Movie where Id in (${ids})`,
             FindMovie: (id: number) => `select * from Movie where Id=${id}`,
-            FindUser: (name: string, email: string) => `select * from MovieUser where Name='${name}' or Email='${email}'`, // the name IS unique
+            FindMovieByPpops: (props: IMovie) => `select * from Movie where Title='${props.Title}' and ImageLink='${props.ImageLink}'`, //maybe we'll add director matching as well later on? :thinking:
+            FindUser: (name: string, email: string) => `select * from MovieUser where Name='${name}' and Email='${email}'`, // the name IS unique
             Favourites: (id: number) => `select
                                         Movie.Id, Title, Director Description,
                                         Imagelink, Year, Duration, Genre,
@@ -36,7 +37,7 @@ export default class QueryStorage {
                                     ImageLink = '${movie.ImageLink}',
                                     Year = '${movie.Year}',
                                     Duration = '${movie.Duration}',
-                                    Genre = '${movie.Genre}',
+                                    Genre = '${movie.Genre}'
                                     where Id=${id}`,
             UpdateUser: (user: User, values: IUserProps) => `update MovieUser
                                     set
@@ -46,13 +47,25 @@ export default class QueryStorage {
         }
     }
 
+    /**
+     * # DON'T PASS APOSTROPHES AS ARGUMENTS HERE!
+     */
     static get PostQueries() {
         return {
             MakeUser: (user: User) => `insert into MovieUser
                                         values ('${user.Name}','${user.Email}','${user.Password}', '${user.IsAdmin}');`,
             MakeFavourite: (userId: number, movieId: number) => 
                                         `insert into Favourites
-                                        values ('${userId}','${movieId}');`
+                                        values ('${userId}','${movieId}');`,
+            MakeMovie: (movie: IMovie) => `insert into Movie
+                                            values (
+                                                '${movie.Title}',
+                                                '${movie.Director}',
+                                                '${movie.Description}',
+                                                '${movie.ImageLink}',
+                                                ${movie.Year}, 
+                                                ${movie.Duration},
+                                                '${movie.Genre}');`
         }
     }
 }

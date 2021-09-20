@@ -8,6 +8,7 @@ import Joi from 'joi';
  * ActiveRecord::Base::ApplicationRecord (https://www.bigbinary.com/blog/application-record-in-rails-5)
  */
 export default class ApplicationRecord {
+    
 
     constructor() {}
 
@@ -59,7 +60,7 @@ export default class ApplicationRecord {
         );
     }
 
-    static ValidateUser(wannabe: any) {
+    static ValidateUser(wannabe: any): Joi.ValidationResult {
         const matcher = Joi.object({
             Id: Joi.number(),
             Name: Joi
@@ -80,5 +81,45 @@ export default class ApplicationRecord {
         });
         
         return matcher.validate(wannabe);
+    }
+    
+    static ValidateMovie(movieSent: any): Joi.ValidationResult {
+        const matcher = Joi.object({
+            Title: Joi
+                    .string()
+                    .min(2)
+                    .max(100)
+                    .required(),
+            Director: Joi
+                    .string()
+                    .min(2)
+                    .max(250)
+                    .required(),
+            Description: Joi
+                    .string()
+                    .min(2)
+                    .max(200)
+                    .required(),
+            ImageLink: Joi
+                    .string()
+                    .min(2)
+                    .max(300)
+                    .required(),
+            Year: Joi
+                    .number()
+                    .min(1850)
+                    .required(),
+            Duration: Joi
+                    .number()
+                    .min(1)
+                    .required(),
+            Genre: Joi
+                    .string()
+                    .min(2)
+                    .max(150)
+                    .required()
+        });
+
+        return matcher.validate(movieSent);
     }
 }
