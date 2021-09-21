@@ -14,7 +14,7 @@ export async function LogIn(req: Request, res: Response){
         writeFileSync(USER_STORAGE_PATH, ''); // WARN!: Nodemon will restart the server upon file creation
     }
 
-    const usr = req.body;
+    const usr = JSON.parse(req.body);
     const {error} = ApplicationRecord.ValidateUser(usr);
     if (!error) {
         let dbUser;
@@ -50,7 +50,7 @@ export async function SignUp(req: Request, res: Response){
     if (!req.body)
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
-    const givenUser = req.body;
+    const givenUser = JSON.parse(req.body);
     const {error} = ApplicationRecord.ValidateUser(givenUser);
     if (!error) {
         const prep = await User.Prepare(givenUser);

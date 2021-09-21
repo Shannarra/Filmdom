@@ -8,7 +8,9 @@ import cors from 'cors';
 import config from 'config';
 import session from 'express-session';
 import cookieParser from 'cookie-parser'
+import dotenv from 'dotenv';
 
+dotenv.config();
 const app = express();
 const PORT =  process.env.PORT || config.get('app.PORT') || 6188;
 import router from './router';

@@ -49,7 +49,7 @@ export async function CreateMovie(req: Request, res: Response){
     if (!req.body)
         res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
-    const movieSent = req.body;
+    const movieSent = JSON.parse(req.body);
     const {error} = ApplicationRecord.ValidateMovie(movieSent);
 
     if (!error) {

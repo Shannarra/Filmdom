@@ -2,6 +2,9 @@
 const DB_CONFIG = require('config').get('app.db');
 import mssql, {IResult, IRecordSet, Request} from 'mssql';
 import Joi from 'joi';
+import dotenv from 'dotenv';
+import { env } from 'process';
+dotenv.config();
 
 /**
  * Base for ALL application record models,
@@ -13,8 +16,12 @@ export default class ApplicationRecord {
      * Gives base configuration for the SQL connections
      */
     static get BaseConfig() {
+        
         return {
-            ...DB_CONFIG,
+            user: process.env.user,
+            server: process.env.server,
+            password: process.env.password,
+            database: process.env.database,
             trustServerCertificate: true
         }
     }

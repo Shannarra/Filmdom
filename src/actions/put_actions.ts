@@ -11,11 +11,11 @@ export async function UpdateMovie(req: Request, res: Response){
         await Movie.Find(req.params.id);
 
         try {
-            const {error} = ApplicationRecord.ValidateMovie(req.body);
+            const {error} = ApplicationRecord.ValidateMovie(JSON.parse(req.body));
 
             if (!error)
                 // @ts-ignore
-                await Movie.Update(Number(req.params.id), req.body);
+                await Movie.Update(Number(req.params.id), JSON.parse(req.body));
             else
                 HANDLE_ERR(res, error)
         } catch (er) {
@@ -39,9 +39,9 @@ export async function UpdateAccount(req: Request, res: Response){
         const curr = new User(GetCurrentUserInfo())
 
     // @ts-ignore
-        if (await User.ComparePasswords(req.body.Password, curr.Password)) { // the body is the same as the current user
+        if (await User.ComparePasswords(JSON.parse(req.body).Password, curr.Password)) { // the body is the same as the current user
             try {
-                await User.Update(curr, req.body);
+                await User.Update(curr, JSON.parse(req.body));
             }
             catch (_er) {
                 if(_er !== "404")
