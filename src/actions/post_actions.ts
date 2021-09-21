@@ -46,8 +46,8 @@ export async function AddFavourite(req: Request, res: Response){
 }
 
 export async function CreateMovie(req: Request, res: Response){
-    if (!req.body)
-        res.send(JSON.stringify({message: "Empty request body"})).status(400);
+    if (Object.entries(req.body).length === 0)
+        return res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
     const movieSent = JSON.parse(req.body);
     const {error} = ApplicationRecord.ValidateMovie(movieSent);

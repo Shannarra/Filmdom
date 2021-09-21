@@ -7,14 +7,14 @@ import HANDLE_ERR from './helpers/error';
 import { USER_STORAGE_PATH } from './helpers/util';
 
 export async function LogIn(req: Request, res: Response){
-    if (!req.body)
-        res.send(JSON.stringify({message: "Empty request body"})).status(400);
+    if (Object.entries(req.body).length === 0)
+        return res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
     if (!existsSync(USER_STORAGE_PATH)){
         writeFileSync(USER_STORAGE_PATH, ''); // WARN!: Nodemon will restart the server upon file creation
     }
 
-    const usr = JSON.parse(req.body);
+    const usr = req.body
     const {error} = ApplicationRecord.ValidateUser(usr);
     if (!error) {
         let dbUser;
@@ -47,8 +47,8 @@ export async function LogIn(req: Request, res: Response){
 }
 
 export async function SignUp(req: Request, res: Response){
-    if (!req.body)
-        res.send(JSON.stringify({message: "Empty request body"})).status(400);
+    if (Object.entries(req.body).length === 0)
+        return res.send(JSON.stringify({message: "Empty request body"})).status(400);
 
     const givenUser = JSON.parse(req.body);
     const {error} = ApplicationRecord.ValidateUser(givenUser);
